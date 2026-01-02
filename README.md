@@ -35,7 +35,7 @@ docker compose -f docker-compose-n8n-local.yml up -d
 
 ## 🏗️ Architecture
 
-```
+```bash
 ┌─────────────────┐    ┌─────────────────┐
 │      n8n        │────│   PostgreSQL    │
 │   (port 5678)   │    │   (internal)    │
@@ -53,14 +53,14 @@ docker compose -f docker-compose-n8n-local.yml up -d
 
 ## 📁 Project Structure
 
-```
+```bash
 local-n8n-with-docker-compose/
 ├── docker-compose-n8n-local.yml    # Docker Compose configuration
 ├── .env.example                    # Environment variables template
 ├── .env                           # Your environment variables (create from .env.example)
 ├── README.md                      # This file
 ├── workflows/                     # n8n workflow files
-│   └── Lead capture form 5 minutes auto.json
+│   └── Lead-capture-form-5-minutes-auto.json
 ├── data/                          # n8n data persistence (created automatically)
 └── local-files/                   # File storage (created automatically)
 ```
@@ -110,6 +110,7 @@ N8N_METRICS_ENABLED=false
 ## 🐳 Docker Services
 
 ### n8n Service
+
 - **Image**: `docker.n8n.io/n8nio/n8n:latest`
 - **Port**: `5678` (configurable via `N8N_PORT`)
 - **Volumes**:
@@ -117,6 +118,7 @@ N8N_METRICS_ENABLED=false
   - `./local-files:/files` - file storage
 
 ### PostgreSQL Service
+
 - **Image**: `postgres:15`
 - **Database**: `n8n`
 - **User**: `n8n`
@@ -133,12 +135,14 @@ N8N_METRICS_ENABLED=false
 ### Step-by-Step Setup
 
 1. **Clone Repository**
+
    ```bash
    git clone https://github.com/denis911/local-n8n-with-docker-compose.git
    cd local-n8n-with-docker-compose
    ```
 
 2. **Configure Environment**
+
    ```bash
    # Copy environment template
    cp .env.example .env
@@ -152,6 +156,7 @@ N8N_METRICS_ENABLED=false
    ```
 
 3. **Start Services**
+
    ```bash
    # Start in detached mode (background)
    docker compose -f docker-compose-n8n-local.yml up -d
@@ -161,6 +166,7 @@ N8N_METRICS_ENABLED=false
    ```
 
 4. **Wait for Services**
+
    ```bash
    # Check service status
    docker compose -f docker-compose-n8n-local.yml ps
@@ -194,16 +200,19 @@ N8N_METRICS_ENABLED=false
 ## 🛠️ Management Commands
 
 ### Start Services
+
 ```bash
 docker compose -f docker-compose-n8n-local.yml up -d
 ```
 
 ### Stop Services
+
 ```bash
 docker compose -f docker-compose-n8n-local.yml down
 ```
 
 ### View Logs
+
 ```bash
 # All services
 docker compose -f docker-compose-n8n-local.yml logs -f
@@ -214,6 +223,7 @@ docker compose -f docker-compose-n8n-local.yml logs -f postgres
 ```
 
 ### Update n8n
+
 ```bash
 # Pull latest images
 docker compose -f docker-compose-n8n-local.yml pull
@@ -224,6 +234,7 @@ docker compose -f docker-compose-n8n-local.yml up -d
 ```
 
 ### Reset Everything (⚠️ Destroys Data)
+
 ```bash
 # Stop and remove all data
 docker compose -f docker-compose-n8n-local.yml down -v
@@ -237,6 +248,7 @@ docker image prune -f
 ### Common Issues
 
 1. **Port Already in Use**
+
    ```bash
    # Change port in .env file
    N8N_PORT=5679
@@ -247,6 +259,7 @@ docker image prune -f
    ```
 
 2. **Database Connection Failed**
+
    ```bash
    # Check PostgreSQL logs
    docker compose -f docker-compose-n8n-local.yml logs postgres
@@ -256,6 +269,7 @@ docker image prune -f
    ```
 
 3. **n8n Won't Start**
+
    ```bash
    # Check n8n logs
    docker compose -f docker-compose-n8n-local.yml logs n8n
@@ -290,6 +304,7 @@ docker compose -f docker-compose-n8n-local.yml exec postgres pg_isready -U n8n -
 ## 📊 Monitoring
 
 ### Resource Usage
+
 ```bash
 # Monitor Docker containers
 docker stats
@@ -299,6 +314,7 @@ du -sh data/ local-files/
 ```
 
 ### n8n Metrics
+
 - Access n8n UI at http://localhost:5678
 - View execution history and logs
 - Monitor workflow performance
@@ -306,6 +322,7 @@ du -sh data/ local-files/
 ## 🔄 Backup and Restore
 
 ### Backup
+
 ```bash
 # Create backup directory
 mkdir -p backups/$(date +%Y%m%d)
@@ -321,6 +338,7 @@ docker compose -f docker-compose-n8n-local.yml exec postgres pg_dump -U n8n n8n 
 ```
 
 ### Restore
+
 ```bash
 # Stop services
 docker compose -f docker-compose-n8n-local.yml down
@@ -331,18 +349,6 @@ cp -r backups/20231201/data/* data/
 # Start services
 docker compose -f docker-compose-n8n-local.yml up -d
 ```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📝 License
-
-This project is provided as-is for educational and development purposes.
 
 ## 🔗 Useful Links
 

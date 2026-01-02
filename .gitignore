@@ -218,6 +218,7 @@ postgres_data/
 # Environment files (never commit actual .env)
 .env.local
 .env.production
+.env
 
 # n8n logs and temporary files
 *.log
