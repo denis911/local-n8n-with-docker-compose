@@ -1,0 +1,366 @@
+{
+  "name": "Lead capture form 5 minutes auto",
+  "nodes": [
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Please extract the following data from incoming message:\n-- company \n-- person name\n-- text/comments if exists\nand return it STRICTLY as json with these 3 fields, please do not include other text or data:\n{\n  \"name\": \"John Doe\",\n  \"company\": \"Acme Corporation\",\n  \"text\": \"This is a sample text message.\"\n}\n\nIncoming message:\n\n {{ $json.snippet }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "6e93162c-9f5e-4551-b7f2-ca99e17aea67",
+      "name": "Extract lead info",
+      "credentials": {
+        "openAiApi": {
+          "id": "9ulnfeGZoCP4cu0P",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 5,
+              "unit": "minutes"
+            }
+          ]
+        },
+        "filters": {
+          "sender": "denis911@gmail.com"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        128
+      ],
+      "id": "1d7c6b3e-fa16-48db-b0ec-5e4f44b5b862",
+      "name": "On message from web form Gmail trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZfL6ZJZv8P5EDfiG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "= Please write a reply to web form inquiry by peforming folowing steps:\n1) Look up company from the 'company field' - collect information from the web about company recent sales activities and achievements.\n2) Create a personalised reply for the web inquiry similar to following template, use information from web research in the previous step 1:\n\nHi << 'name' >>,\n\nThanks for reaching out.\n\nI had a quick look at << 'company' >> — just to make sure I understand the context - << add relevant information from the 'text' field if any >>. Could you share a bit more about what you’re hoping to discuss?\n\nIf it makes sense, I’d be happy to set up a short Zoom call. Let me know what works for you.\n\nBest regards,  \nDenis\n\n\n3) Make the text smooth, looking like a real person reply, remove all UTMs, web links or other markup - as people would not do it in a simple friendly text message. It should fit to a small email or SMS - no need to include all company background, only 1-2 relevant facts about sales organization and achievements.  \n\n4) web form inquiry is here:  {{ $json.output[0].content[0].text }}\n"
+            }
+          ]
+        },
+        "builtInTools": {
+          "webSearch": {
+            "searchContextSize": "medium"
+          }
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        384,
+        208
+      ],
+      "id": "e39038eb-aec8-422b-adc5-e749182556ba",
+      "name": "Write a reply",
+      "credentials": {
+        "openAiApi": {
+          "id": "9ulnfeGZoCP4cu0P",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Please look at the text and remove all links, utms and other markup - so it should look like a human wrote a short email or sms message. Main idea is to ask politely if the person is looking to engage in the conversation and if yes ask what time would work the best.\n\nStructure:\n1. Thank the person\n2. Confirm company / context briefly\n3. Ask one clarifying question\n4. Offer a Zoom call politely\n\n\nText is here:   {{ $json.output[0].content[0].text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        576,
+        0
+      ],
+      "id": "96a37ae7-ef47-4139-9e23-c96deccf549a",
+      "name": "Make text look more human",
+      "credentials": {
+        "openAiApi": {
+          "id": "9ulnfeGZoCP4cu0P",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "8270885371",
+        "message": "=New lead captured from:\n{{ $('Extract lead info').item.json.output[0].content[0].text }}\n;\nReply text message for approval:\n{{ $json.output[0].content[0].text }}\n\n",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        224
+      ],
+      "id": "014a61fc-2fee-40a6-bde2-96a9781e31d9",
+      "name": "Send a text message",
+      "webhookId": "ba8d8a17-1c78-43dc-86b2-2638f6d0f364",
+      "credentials": {
+        "telegramApi": {
+          "id": "cVlZGo6S5LHDabcO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.approved }}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    },
+                    "id": "45a266a7-a97e-46b6-a8e6-1ddfd4906b33"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c16a1105-a077-493d-9a1a-c63e3bc907dd",
+                    "leftValue": "={{ $json.data.approved }}",
+                    "rightValue": false,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        224
+      ],
+      "id": "51e8f0df-7139-48d8-b65f-4e6fc7da630e",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "denis911ai@gmail.com",
+        "subject": "Approved email ready to send - leads capture form",
+        "emailType": "text",
+        "message": "={{ $('Make text look more human').item.json.output[0].content[0].text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        0
+      ],
+      "id": "83334863-e9bd-4c4f-baac-b31b3a556f2c",
+      "name": "APPROVED - Send a message",
+      "webhookId": "15dc11aa-95f7-4508-bda0-a76553c2a96e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZfL6ZJZv8P5EDfiG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "denis911ai@gmail.com",
+        "subject": "Rejected message - lead capture form",
+        "emailType": "text",
+        "message": "=ATTENTION - THIS MESSAGE WAS REJECTED !!!\n---\n\n {{ $('Make text look more human').item.json.output[0].content[0].text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1184,
+        240
+      ],
+      "id": "5b99b409-7cb5-4a7a-87d6-f0d6496ed7e0",
+      "name": "REJECTED message from lead capture form",
+      "webhookId": "d49eac96-0174-481c-bf19-9dbadfe54d63",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZfL6ZJZv8P5EDfiG",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Extract lead info": {
+      "main": [
+        [
+          {
+            "node": "Write a reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On message from web form Gmail trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract lead info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write a reply": {
+      "main": [
+        [
+          {
+            "node": "Make text look more human",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make text look more human": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "APPROVED - Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "REJECTED message from lead capture form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3803af77-a6a5-446c-890f-04b0b2917734",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "50672d0a6400073066e47895c6fc99d65383b032bd99b3bbe0e941df05be0204"
+  },
+  "id": "NgfMW8H26tf0MBj9",
+  "tags": []
+}
