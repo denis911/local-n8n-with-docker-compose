@@ -137,7 +137,7 @@
     {
       "parameters": {
         "chatId": "8270885371",
-        "text": "=🚨 New lead captured from:\n{{ $('Extract lead info').item.json.output[0].content[0].text }}\n\n📝 Reply text message for approval:\n{{ $json.output[0].content[0].text }}\n\nReply with:\n✅ Y/YES to APPROVE and send email\n❌ N/NO to REJECT\n\n(Other replies will be ignored)",
+        "text": "=🚨 New lead captured from:\n{{ $('Extract lead info').item.json.output[0].content[0].text }}\n\n📝 Reply text message for approval:\n{{ $json.output[0].content[0].text }}\n\nReply with:\n✅ a/A/y/Y/yes/YES to APPROVE and send email\n❌ r/R/n/N/no/NO to REJECT\n\n(Other replies will be ignored)",
         "reply_markup": {}
       },
       "type": "n8n-nodes-base.telegram",
@@ -179,7 +179,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const text = $input.item.json.text?.toLowerCase() || '';\n\nif (['y', 'yes'].includes(text)) {\n  return [{ json: { approved: true, original_message: $input.item.json } }];\n} else if (['n', 'no'].includes(text)) {\n  return [{ json: { approved: false, original_message: $input.item.json } }];\n} else {\n  // Ignore other responses - don't return anything\n  return [];\n}"
+        "jsCode": "const text = $input.item.json.text?.toLowerCase() || '';\n\n// Accept: a, y, yes (and uppercase variants) for APPROVE\nconst approveKeywords = ['a', 'y', 'yes'];\n// Accept: r, n, no (and uppercase variants) for REJECT\nconst rejectKeywords = ['r', 'n', 'no'];\n\nif (approveKeywords.includes(text)) {\n  return [{ json: { approved: true, original_message: $input.item.json } }];\n} else if (rejectKeywords.includes(text)) {\n  return [{ json: { approved: false, original_message: $input.item.json } }];\n} else {\n  // Ignore other responses - don't return anything\n  return [];\n}"
       },
       "type": "@n8n/n8n-nodes-langchain.code",
       "typeVersion": 1.0,
