@@ -65,6 +65,48 @@ local-n8n-with-docker-compose/
 └── local-files/                   # File storage (created automatically)
 ```
 
+## 🔐 Google Cloud Platform (GCP) OAuth Setup
+
+**Important**: GCP OAuth requires `localhost` as the host (not `0.0.0.0`). Make sure your `.env` file has `N8N_HOST=localhost`.
+
+### Step-by-Step GCP OAuth Setup
+
+1. **Create a Google Cloud Project**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select existing one
+
+2. **Enable Required APIs**
+   - Enable the Gmail API: APIs & Services → Library → Search "Gmail" → Enable
+   - Enable the Google+ API (for user info): Search "Google+" → Enable
+
+3. **Create OAuth 2.0 Credentials**
+   - Go to APIs & Services → Credentials
+   - Click "Create Credentials" → "OAuth 2.0 Client IDs"
+   - Choose "Web application"
+   - Set name: "n8n Local Development"
+   - Add authorized redirect URIs:
+     - `http://localhost:5678/rest/oauth2-credential/callback`
+   - Save and copy Client ID and Client Secret
+
+4. **Configure n8n Credentials**
+   - Start n8n and go to Settings → Credentials
+   - Create new credential: "Gmail OAuth2"
+   - Fill in:
+     - **Client ID**: Your GCP OAuth Client ID
+     - **Client Secret**: Your GCP OAuth Client Secret
+   - Save the credential
+
+5. **Test the Connection**
+   - Create a test workflow with Gmail Trigger node
+   - Select your Gmail OAuth2 credential
+   - The OAuth flow will redirect to Google for authorization
+
+### Common OAuth Issues
+
+- **"invalid_request" error**: Ensure `N8N_HOST=localhost` in your `.env` file
+- **Redirect URI mismatch**: Make sure the callback URL matches exactly: `http://localhost:5678/rest/oauth2-credential/callback`
+- **Scopes not granted**: Ensure Gmail API is enabled and user grants necessary permissions
+
 ## ⚙️ Configuration
 
 ### Environment Variables (.env)
@@ -72,8 +114,8 @@ local-n8n-with-docker-compose/
 Copy `.env.example` to `.env` and configure:
 
 ```bash
-# Basic Configuration
-N8N_HOST=0.0.0.0
+# Basic Configuration (localhost required for GCP OAuth)
+N8N_HOST=localhost
 N8N_PORT=5678
 N8N_PROTOCOL=http
 
