@@ -65,6 +65,68 @@ local-n8n-with-docker-compose/
 └── local-files/                   # File storage (created automatically)
 ```
 
+## 🌐 Webhook Tunneling Setup (ngrok)
+
+**Required for Telegram webhooks**: Since you're running n8n locally, Telegram needs a public HTTPS URL to send webhook updates.
+
+### Windows 11 Installation & Setup
+
+1. **Download ngrok:**
+   - Visit https://ngrok.com/download
+   - Download the Windows version (ngrok.exe)
+   - Extract to a folder (e.g., `C:\ngrok\`)
+
+2. **Sign up for ngrok account:**
+   - Go to https://dashboard.ngrok.com/signup
+   - Create free account
+   - Copy your auth token from the dashboard
+
+3. **Authenticate ngrok:**
+   ```cmd
+   cd C:\ngrok
+   ngrok config add-authtoken YOUR_AUTH_TOKEN_HERE
+   ```
+
+4. **Start tunnel for n8n:**
+   ```cmd
+   ngrok http 5678
+   ```
+
+5. **Copy the HTTPS URL:**
+   - ngrok will show: `Forwarding https://abc123.ngrok.io -> http://localhost:5678`
+   - Copy the `https://abc123.ngrok.io` URL
+
+6. **Update environment variables:**
+   ```bash
+   # Edit your .env file and add:
+   N8N_EDITOR_BASE_URL=https://your-ngrok-url.ngrok.io
+   WEBHOOK_URL=https://your-ngrok-url.ngrok.io
+   ```
+
+7. **Restart n8n:**
+   ```bash
+   docker compose -f docker-compose-n8n-local.yml down
+   docker compose -f docker-compose-n8n-local.yml up -d
+   ```
+
+### Alternative: Keep Tunnel Running
+
+For development, keep ngrok running in a separate Command Prompt window:
+```cmd
+# Terminal 1: Run ngrok
+C:\ngrok\ngrok.exe http 5678
+
+# Terminal 2: Run n8n (after updating .env)
+docker compose -f docker-compose-n8n-local.yml up -d
+```
+
+### Troubleshooting ngrok
+
+- **Connection issues**: Try `ngrok config check`
+- **Port conflicts**: Make sure port 5678 is free
+- **URL changes**: Free tier URLs change on restart (upgrade for stable URLs)
+- **Rate limits**: Free tier limited to 40 requests/minute
+
 ## 🔐 Google Cloud Platform (GCP) OAuth Setup
 
 **Important**: GCP OAuth requires `localhost` as the host (not `0.0.0.0`). Make sure your `.env` file has `N8N_HOST=localhost`.
