@@ -232,9 +232,37 @@ N8N_METRICS_ENABLED=false
 
 ### Prerequisites
 
+#### System Requirements
 - Docker and Docker Compose installed
 - At least 2GB free RAM
 - Ports 5678 and 5432 available (PostgreSQL internal)
+
+#### Required Accounts & API Keys
+
+##### 1. **Telegram Bot Token**
+**Cost**: Free
+**Setup Time**: 5 minutes
+
+1. Open Telegram and search for `@BotFather`
+2. Send `/newbot` and follow the prompts
+3. Save the bot token (starts with `123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11`)
+4. **Important**: Start a chat with your bot by sending `/start` - this is required for the bot to send you messages
+
+##### 2. **OpenAI API Key**
+**Cost**: Pay-as-you-go (starts free, then ~$0.03 per 1K tokens for GPT-4)
+**Setup Time**: 5 minutes
+
+1. Go to [OpenAI Platform](https://platform.openai.com/)
+2. Sign up/Login to your account
+3. Navigate to API Keys section
+4. Create a new secret key
+5. **Important**: Add credits to your account (minimum $5) to use GPT-4
+
+##### 3. **Google Cloud Platform (GCP) OAuth**
+**Cost**: Free tier available
+**Setup Time**: 15 minutes
+
+See the [🔐 GCP OAuth Setup](#-google-cloud-platform-gcp-oauth-setup) section above for detailed instructions.
 
 ### Step-by-Step Setup
 

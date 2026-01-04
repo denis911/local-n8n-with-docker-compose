@@ -136,15 +136,9 @@
     },
     {
       "parameters": {
-        "operation": "sendAndWait",
         "chatId": "8270885371",
-        "message": "=New lead captured from:\n{{ $('Extract lead info').item.json.output[0].content[0].text }}\n;\nReply text message for approval:\n{{ $json.output[0].content[0].text }}\n\n",
-        "approvalOptions": {
-          "values": {
-            "approvalType": "double"
-          }
-        },
-        "options": {}
+        "text": "=🚨 New lead captured from:\n{{ $('Extract lead info').item.json.output[0].content[0].text }}\n\n📝 Reply text message for approval:\n{{ $json.output[0].content[0].text }}\n\nReply with:\n✅ a/A/y/Y/yes/YES to APPROVE and send email\n❌ r/R/n/N/no/NO to REJECT\n\n(Other replies will be ignored)",
+        "reply_markup": {}
       },
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
@@ -153,14 +147,48 @@
         224
       ],
       "id": "014a61fc-2fee-40a6-bde2-96a9781e31d9",
-      "name": "Send a text message",
-      "webhookId": "ba8d8a17-1c78-43dc-86b2-2638f6d0f364",
+      "name": "Send approval request",
       "credentials": {
         "telegramApi": {
           "id": "cVlZGo6S5LHDabcO",
           "name": "Telegram account"
         }
       }
+    },
+    {
+      "parameters": {
+        "updatesIds": {
+          "values": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        224
+      ],
+      "id": "new-telegram-trigger",
+      "name": "Wait for approval reply",
+      "credentials": {
+        "telegramApi": {
+          "id": "cVlZGo6S5LHDabcO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.item.json.text?.toLowerCase() || '';\n\n// Accept: a, y, yes (and uppercase variants) for APPROVE\nconst approveKeywords = ['a', 'y', 'yes'];\n// Accept: r, n, no (and uppercase variants) for REJECT\nconst rejectKeywords = ['r', 'n', 'no'];\n\nif (approveKeywords.includes(text)) {\n  return [{ json: { approved: true, original_message: $input.item.json } }];\n} else if (rejectKeywords.includes(text)) {\n  return [{ json: { approved: false, original_message: $input.item.json } }];\n} else {\n  // Ignore other responses - don't return anything\n  return [];\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.code",
+      "typeVersion": 1.0,
+      "position": [
+        1184,
+        224
+      ],
+      "id": "parse-approval-response",
+      "name": "Parse approval response"
     },
     {
       "parameters": {
@@ -176,13 +204,13 @@
                 },
                 "conditions": [
                   {
-                    "leftValue": "={{ $json.data.approved }}",
+                    "leftValue": "={{ $json.approved }}",
                     "rightValue": true,
                     "operator": {
                       "type": "boolean",
                       "operation": "equals"
                     },
-                    "id": "45a266a7-a97e-46b6-a8e6-1ddfd4906b33"
+                    "id": "approval-condition"
                   }
                 ],
                 "combinator": "and"
@@ -198,8 +226,8 @@
                 },
                 "conditions": [
                   {
-                    "id": "c16a1105-a077-493d-9a1a-c63e3bc907dd",
-                    "leftValue": "={{ $json.data.approved }}",
+                    "id": "rejection-condition",
+                    "leftValue": "={{ $json.approved }}",
                     "rightValue": false,
                     "operator": {
                       "type": "boolean",
@@ -217,11 +245,11 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        976,
+        1392,
         224
       ],
       "id": "51e8f0df-7139-48d8-b65f-4e6fc7da630e",
-      "name": "Switch"
+      "name": "Route by approval"
     },
     {
       "parameters": {
@@ -315,25 +343,47 @@
       "main": [
         [
           {
-            "node": "Send a text message",
+            "node": "Send approval request",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Send a text message": {
+    "Send approval request": {
       "main": [
         [
           {
-            "node": "Switch",
+            "node": "Wait for approval reply",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Switch": {
+    "Wait for approval reply": {
+      "main": [
+        [
+          {
+            "node": "Parse approval response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse approval response": {
+      "main": [
+        [
+          {
+            "node": "Route by approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by approval": {
       "main": [
         [
           {
