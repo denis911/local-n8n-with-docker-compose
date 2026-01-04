@@ -133,6 +133,18 @@ docker compose -f docker-compose-n8n-local.yml up -d
 - **URL changes**: Free tier URLs change on restart (upgrade for stable URLs)
 - **Rate limits**: Free tier limited to 40 requests/minute
 
+### Testing Webhooks with PowerShell
+
+After setting up ngrok, test webhooks directly:
+
+```powershell
+# Test ngrok bypass header
+Invoke-WebRequest -Uri "https://your-ngrok-url.ngrok.io" -Headers @{ "ngrok-skip-browser-warning" = "true" }
+
+# Test actual webhook URLs (replace with your URLs)
+Invoke-WebRequest -Uri "https://your-ngrok-url.ngrok.io/webhook-waiting/YOUR_ID?approved=true&signature=YOUR_SIG" -Headers @{ "ngrok-skip-browser-warning" = "true" }
+```
+
 ## 🔐 Google Cloud Platform (GCP) OAuth Setup
 
 **Important**: GCP OAuth requires `localhost` as the host (not `0.0.0.0`). Make sure your `.env` file has `N8N_HOST=localhost`.
@@ -334,6 +346,8 @@ See the [🔐 GCP OAuth Setup](#-google-cloud-platform-gcp-oauth-setup) section 
   - Generates personalized reply suggestions
   - Sends messages to Telegram for approval
   - Sends approved/rejected emails automatically
+
+**⚠️ Important:** After importing the workflow, **activate it** in n8n UI (toggle the "Active" switch in the workflow editor).
 
 ## 🛠️ Management Commands
 
