@@ -71,39 +71,45 @@ local-n8n-with-docker-compose/
 
 ### Windows 11 Installation & Setup
 
-1. **Download ngrok:**
-   - Visit https://ngrok.com/download
-   - Download the Windows version (ngrok.exe)
-   - Extract to a folder (e.g., `C:\ngrok\`)
+1. **Install Chocolatey (package manager for Windows):**
+   ```powershell
+   # Run PowerShell as Administrator:
+   Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+   ```
 
-2. **Sign up for ngrok account:**
+2. **Install ngrok via Chocolatey:**
+   ```cmd
+   # Open Command Prompt (no admin needed):
+   choco install ngrok
+   ```
+
+3. **Sign up for ngrok account:**
    - Go to https://dashboard.ngrok.com/signup
    - Create free account
    - Copy your auth token from the dashboard
 
-3. **Authenticate ngrok:**
+4. **Authenticate ngrok:**
    ```cmd
-   cd C:\ngrok
    ngrok config add-authtoken YOUR_AUTH_TOKEN_HERE
    ```
 
-4. **Start tunnel for n8n:**
+5. **Start tunnel for n8n:**
    ```cmd
    ngrok http 5678
    ```
 
-5. **Copy the HTTPS URL:**
+6. **Copy the HTTPS URL:**
    - ngrok will show: `Forwarding https://abc123.ngrok.io -> http://localhost:5678`
    - Copy the `https://abc123.ngrok.io` URL
 
-6. **Update environment variables:**
+7. **Update environment variables:**
    ```bash
    # Edit your .env file and add:
    N8N_EDITOR_BASE_URL=https://your-ngrok-url.ngrok.io
    WEBHOOK_URL=https://your-ngrok-url.ngrok.io
    ```
 
-7. **Restart n8n:**
+8. **Restart n8n:**
    ```bash
    docker compose -f docker-compose-n8n-local.yml down
    docker compose -f docker-compose-n8n-local.yml up -d
