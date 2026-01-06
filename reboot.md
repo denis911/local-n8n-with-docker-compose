@@ -1,30 +1,6 @@
 
 # Reboot sequence
 
-## **Pre-Reboot:**
-
-```bash
-docker compose -f docker-compose-n8n-local.yml down
-```
-
-## **Post-Reboot:**
-
-1. Start ngrok: `ngrok http 5678`
-2. Update .env with new URL (if changed)
-3. Start n8n: `docker compose up -d`
-4. Verify: `docker compose ps`
-5. Access: http://localhost:5678
-
-### **Important Notes:**
-
-- Docker volumes persist
-- ngrok URLs change on free tier
-- Workflows remain active
-
-## 🎯 **Now Complete:**
-
-Yes, **stopping n8n is sufficient** for a Windows reboot. Docker containers will automatically stop when Windows shuts down, and ngrok will also terminate.
-
 Here's the complete reboot procedure:
 
 ## 🛑 **Pre-Reboot Steps:**
@@ -51,13 +27,13 @@ ngrok http 5678
 # Start n8n (in another terminal)
 docker compose -f docker-compose-n8n-local.yml up -d
 
-# Check status
+# Check status - or better look at docker desktop on win 11
 docker compose -f docker-compose-n8n-local.yml ps
 ```
 
 ## ⚠️ **Important Notes:**
 
-- **ngrok URLs change** on reboot (free tier), so you'll need to update `.env` if the URL changed
+- **ngrok URLs may change** on reboot (free tier), so you'll need to update `.env` if the URL changed
 - **Docker volumes persist** - your n8n data and PostgreSQL database will be preserved
 - **Workflows remain active** - they'll pick up where they left off after restart
 
