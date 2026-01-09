@@ -1,5 +1,5 @@
 {
-  "name": "Lead capture form 5 minutes auto",
+  "name": "Lead-capture-form-5-minutes-auto",
   "nodes": [
     {
       "parameters": {
@@ -22,15 +22,15 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 2.1,
       "position": [
-        208,
+        0,
         0
       ],
-      "id": "6e93162c-9f5e-4551-b7f2-ca99e17aea67",
+      "id": "7fa7b408-a964-4989-9080-73c5bfdc33bb",
       "name": "Extract lead info",
       "credentials": {
         "openAiApi": {
-          "id": "9ulnfeGZoCP4cu0P",
-          "name": "n8n free OpenAI API credits"
+          "id": "5kcNdHwmxkksinAE",
+          "name": "OpenAi account"
         }
       }
     },
@@ -52,15 +52,15 @@
       "type": "n8n-nodes-base.gmailTrigger",
       "typeVersion": 1.3,
       "position": [
-        16,
+        -192,
         128
       ],
-      "id": "1d7c6b3e-fa16-48db-b0ec-5e4f44b5b862",
+      "id": "d45ad996-c03f-4ed2-a9d2-6480f7b3481e",
       "name": "On message from web form Gmail trigger",
       "credentials": {
         "gmailOAuth2": {
-          "id": "ZfL6ZJZv8P5EDfiG",
-          "name": "Gmail account"
+          "id": "RltXB1O1uA7eDR1j",
+          "name": "GCP and Gmail access for denis911ai"
         }
       }
     },
@@ -89,15 +89,15 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 2.1,
       "position": [
-        384,
+        176,
         208
       ],
-      "id": "e39038eb-aec8-422b-adc5-e749182556ba",
+      "id": "752c8fca-4e1d-413f-b16e-6d55a72f70e2",
       "name": "Write a reply",
       "credentials": {
         "openAiApi": {
-          "id": "9ulnfeGZoCP4cu0P",
-          "name": "n8n free OpenAI API credits"
+          "id": "5kcNdHwmxkksinAE",
+          "name": "OpenAi account"
         }
       }
     },
@@ -122,15 +122,15 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 2.1,
       "position": [
-        576,
+        368,
         0
       ],
-      "id": "96a37ae7-ef47-4139-9e23-c96deccf549a",
+      "id": "aa20f238-edb5-429c-a972-63a9e77bc16f",
       "name": "Make text look more human",
       "credentials": {
         "openAiApi": {
-          "id": "9ulnfeGZoCP4cu0P",
-          "name": "n8n free OpenAI API credits"
+          "id": "5kcNdHwmxkksinAE",
+          "name": "OpenAi account"
         }
       }
     },
@@ -149,15 +149,15 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        768,
+        560,
         224
       ],
-      "id": "014a61fc-2fee-40a6-bde2-96a9781e31d9",
+      "id": "8fc8c529-3659-4a6a-8089-c7e734638f58",
       "name": "Send a text message",
       "webhookId": "ba8d8a17-1c78-43dc-86b2-2638f6d0f364",
       "credentials": {
         "telegramApi": {
-          "id": "cVlZGo6S5LHDabcO",
+          "id": "1RQVEEMAYkvuM1WA",
           "name": "Telegram account"
         }
       }
@@ -217,10 +217,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        976,
+        768,
         224
       ],
-      "id": "51e8f0df-7139-48d8-b65f-4e6fc7da630e",
+      "id": "d1540469-0a40-45d3-a6dd-76e5db88de04",
       "name": "Switch"
     },
     {
@@ -236,16 +236,16 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        960,
+        752,
         0
       ],
-      "id": "83334863-e9bd-4c4f-baac-b31b3a556f2c",
+      "id": "0a10692e-5601-4065-b7b3-286948661cdd",
       "name": "APPROVED - Send a message",
       "webhookId": "15dc11aa-95f7-4508-bda0-a76553c2a96e",
       "credentials": {
         "gmailOAuth2": {
-          "id": "ZfL6ZJZv8P5EDfiG",
-          "name": "Gmail account"
+          "id": "RltXB1O1uA7eDR1j",
+          "name": "GCP and Gmail access for denis911ai"
         }
       }
     },
@@ -262,21 +262,148 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        1184,
+        976,
         240
       ],
-      "id": "5b99b409-7cb5-4a7a-87d6-f0d6496ed7e0",
+      "id": "d5523279-b6b8-4077-8320-4a50cd8c9fa9",
       "name": "REJECTED message from lead capture form",
       "webhookId": "d49eac96-0174-481c-bf19-9dbadfe54d63",
       "credentials": {
         "gmailOAuth2": {
-          "id": "ZfL6ZJZv8P5EDfiG",
-          "name": "Gmail account"
+          "id": "RltXB1O1uA7eDR1j",
+          "name": "GCP and Gmail access for denis911ai"
         }
       }
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "On message from web form Gmail trigger": [
+      {
+        "json": {
+          "id": "19b84866b1b6b071",
+          "threadId": "19b84866b1b6b071",
+          "snippet": "Company = Arrow electronics gmbh Name = Konstantin Hanschmann Text = Please how to get in contact, we need automation services consultancy. BR, Konni",
+          "payload": {
+            "mimeType": "multipart/alternative"
+          },
+          "sizeEstimate": 6170,
+          "historyId": "3892",
+          "internalDate": "1767454948000",
+          "labels": [
+            {
+              "id": "INBOX",
+              "name": "INBOX"
+            },
+            {
+              "id": "IMPORTANT",
+              "name": "IMPORTANT"
+            },
+            {
+              "id": "CATEGORY_PERSONAL",
+              "name": "CATEGORY_PERSONAL"
+            },
+            {
+              "id": "UNREAD",
+              "name": "UNREAD"
+            }
+          ],
+          "From": "Denis Kuramshin <denis911@gmail.com>",
+          "Subject": "Lead capture form",
+          "To": "denis911ai <denis911ai@gmail.com>"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Extract lead info": [
+      {
+        "json": {
+          "output": [
+            {
+              "id": "msg_038dcfd55c16f28f0069600af8040081a2973a3106095ad921",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "{\n  \"name\": \"Konstantin Hanschmann\",\n  \"company\": \"Arrow electronics gmbh\",\n  \"text\": \"Please how to get in contact, we need automation services consultancy. BR, Konni\"\n}"
+                }
+              ],
+              "role": "assistant"
+            }
+          ]
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Write a reply": [
+      {
+        "json": {
+          "output": [
+            {
+              "id": "msg_0517bdee1eef55210069600afc17a081938b0280a9431d7284",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "Hi Konstantin,\n\nThanks for reaching out.\n\nI had a quick look at Arrow Electronics GmbH — just to make sure I understand the context, you're seeking automation services consultancy. Could you share a bit more about what you’re hoping to discuss?\n\nIf it makes sense, I’d be happy to set up a short Zoom call. Let me know what works for you.\n\nBest regards,  \nDenis "
+                }
+              ],
+              "role": "assistant"
+            }
+          ]
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Make text look more human": [
+      {
+        "json": {
+          "output": [
+            {
+              "id": "msg_0d4b760250547a970069600afed48481a28a4b6c6532b2f0b8",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "Hi Konstantin,\n\nThanks for reaching out.\n\nI had a quick look at Arrow Electronics GmbH and wanted to confirm—I understand you're looking for automation services consultancy. Could you please share a bit more about what you’d like to discuss?\n\nIf it sounds good, I’d be happy to set up a short Zoom call. Just let me know what time works best for you.\n\nBest regards,  \nDenis"
+                }
+              ],
+              "role": "assistant"
+            }
+          ]
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Send a text message": [
+      {
+        "json": {
+          "data": {
+            "approved": true
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
   "connections": {
     "Extract lead info": {
       "main": [
@@ -350,17 +477,23 @@
           }
         ]
       ]
+    },
+    "APPROVED - Send a message": {
+      "main": [
+        []
+      ]
     }
   },
   "active": false,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "availableInMCP": false
   },
-  "versionId": "3803af77-a6a5-446c-890f-04b0b2917734",
+  "versionId": "343d1c31-c9db-470c-9eb7-1d0d62f729e0",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "50672d0a6400073066e47895c6fc99d65383b032bd99b3bbe0e941df05be0204"
+    "instanceId": "1737976393e16e2cd1cccedea3489cc2fd5d24567be6af890860ab36c2b64540"
   },
-  "id": "NgfMW8H26tf0MBj9",
+  "id": "SbJNnr6jzjCxiiXF",
   "tags": []
 }
