@@ -59,8 +59,12 @@ local-n8n-with-docker-compose/
 ├── .env.example                    # Environment variables template
 ├── .env                           # Your environment variables (create from .env.example)
 ├── README.md                      # This file
-├── workflows/                     # n8n workflow files
-│   └── Lead-capture-form-5-minutes-auto.json
+├── workflows/                     # n8n workflow files (organized by workflow)
+│   └── lead-capture-form-auto-email-telegram-approval/
+│       ├── README.md              # Workflow-specific documentation
+│       └── Lead-capture-form-5-minutes-auto.json
+├── cloudflared/                   # Cloudflared tunnel configuration
+│   └── config.yml                 # Tunnel configuration (create from example)
 ├── data/                          # n8n data persistence (created automatically)
 └── local-files/                   # File storage (created automatically)
 ```
@@ -143,6 +147,182 @@ Invoke-WebRequest -Uri "https://your-ngrok-url.ngrok.io" -Headers @{ "ngrok-skip
 
 # Test actual webhook URLs (replace with your URLs)
 Invoke-WebRequest -Uri "https://your-ngrok-url.ngrok.io/webhook-waiting/YOUR_ID?approved=true&signature=YOUR_SIG" -Headers @{ "ngrok-skip-browser-warning" = "true" }
+```
+
+---
+
+## 🌐 Webhook Tunneling Setup (Cloudflared - Free Alternative)
+
+**Cloudflared is a great free alternative to ngrok** - it offers stable URLs and no rate limits on the free tier. This is the recommended option for local development.
+
+### Windows 11 Installation & Setup
+
+1. **Download and install cloudflared:**
+   - Go to https://github.com/cloudflare/cloudflared/releases
+   - Download the latest `cloudflared-stable-windows-amd64.exe`
+   - Rename to `cloudflared.exe` and move to a folder (e.g., `C:\cloudflared`)
+   - Add the folder to your system PATH:
+     - Search "Edit the system environment variables"
+     - Click "Environment Variables"
+     - Under "User variables", select "Path" → Click "Edit" → "New"
+     - Add `C:\cloudflared` → Click "OK" for all dialogs
+
+2. **Authenticate with Cloudflare:**
+   ```cmd
+   cloudflared tunnel login
+   ```
+   - This will open a browser for authentication
+   - Select your Cloudflare account and authorize cloudflared
+   - Credentials are saved to `%USERPROFILE%\.cloudflared\`
+
+3. **Create a tunnel:**
+   ```cmd
+   cloudflared tunnel create n8n-local
+   ```
+   - Output shows tunnel ID and credentials file location
+   - Example: `Created tunnel n8n-local with ID abc123-uuid...`
+   - Credentials saved to: `%USERPROFILE%\.cloudflared\abc123-uuid.json`
+
+4. **Configure the tunnel (create config.yml):**
+
+   Create `%USERPROFILE%\.cloudflared\config.yml` with:
+   ```yaml
+   tunnel: abc123-uuid
+   credentials-file: C:\Users\YOUR_USERNAME\.cloudflared\abc123-uuid.json
+   logDirectory: C:\cloudflared\logs
+   loglevel: info
+
+   ingress:
+     - hostname: n8n-local.yourdomain.com
+       service: http://localhost:5678
+       originRequest:
+         connectTimeout: 30s
+         noTLSVerify: false
+
+     - service: http_status:404
+   ```
+
+   **Note:** For free tier without custom domain, use the auto-generated URL approach below.
+
+5. **Route DNS (if using custom domain):**
+   ```cmd
+   cloudflared tunnel route dns n8n-local n8n-local.yourdomain.com
+   ```
+   - Creates a CNAME record in Cloudflare DNS
+
+6. **Run the tunnel:**
+   ```cmd
+   cloudflared tunnel run n8n-local
+   ```
+
+### Free Tier: Quick Tunnel (No Login Required)
+
+For immediate access without creating an account:
+
+```cmd
+cloudflared tunnel --url http://localhost:5678
+```
+
+This starts a temporary tunnel with a random URL like `https://random-name.trycloudflare.com`.
+
+⚠️ **IMPORTANT - URL Changes on Every Restart:**
+The quick tunnel URL is **ephemeral** and will change:
+- After PC reboot
+- When you stop and restart the tunnel
+- Every time you run the command
+
+**If your URL changes, you must:**
+1. Copy the new URL from the terminal output
+2. Update your `.env` file:
+   ```bash
+   N8N_EDITOR_BASE_URL=https://new-random-url.trycloudflare.com
+   WEBHOOK_URL=https://new-random-url.trycloudflare.com
+   ```
+3. Restart n8n:
+   ```bash
+   docker compose -f docker-compose-n8n-local.yml down
+   docker compose -f docker-compose-n8n-local.yml up -d
+   ```
+4. Update any external services (Telegram webhook URL, etc.) with the new URL
+
+For stable URLs, use a **named tunnel** with a custom domain (requires paid Cloudflare plan).
+
+### Create Cloudflared Config File for Quick Tunnel
+
+Create `cloudflared\config.yml` in your project directory:
+
+```yaml
+# Project: local-n8n-with-docker-compose
+# Run: cloudflared tunnel --config cloudflared\config.yml url http://localhost:5678
+
+tunnel: ""
+credentials-file: ""
+
+# Quick tunnel configuration (no tunnel creation needed)
+ingress:
+  - service: http://localhost:5678
+```
+
+Then run:
+```cmd
+cloudflared tunnel --config cloudflared\config.yml url http://localhost:5678
+```
+
+### Keep Tunnel Running in Background
+
+For development, run cloudflared in a separate terminal:
+
+```cmd
+# Terminal 1: Run cloudflared
+cloudflared tunnel --url http://localhost:5678
+
+# Terminal 2: Run n8n (after updating .env)
+docker compose -f docker-compose-n8n-local.yml up -d
+```
+
+### Update n8n Environment Variables
+
+After getting your cloudflared URL (e.g., `https://random-name.trycloudflare.com`):
+
+```bash
+# Edit your .env file and add:
+N8N_EDITOR_BASE_URL=https://random-name.trycloudflare.com
+WEBHOOK_URL=https://random-name.trycloudflare.com
+```
+
+Restart n8n:
+```bash
+docker compose -f docker-compose-n8n-local.yml down
+docker compose -f docker-compose-n8n-local.yml up -d
+```
+
+### Cloudflared vs ngrok Comparison
+
+| Feature | Cloudflared (Free) | ngrok (Free) |
+|---------|-------------------|--------------|
+| URL Stability | Changes each restart | Changes each restart |
+| Rate Limits | None | 40 requests/minute |
+| Custom Domains | Requires paid plan | Requires paid plan |
+| Concurrent Tunnels | 1 | 1 |
+| HTTP/2 Support | ✅ | ✅ |
+| Websocket Support | ✅ | ✅ |
+| Account Required | Optional (for named tunnels) | Required |
+
+### Troubleshooting Cloudflared
+
+- **Connection issues**: Check logs in `%USERPROFILE%\.cloudflared\logs`
+- **Port conflicts**: Ensure port 5678 is free
+- **Permission errors**: Run terminal as Administrator
+- **URL not working**: Verify n8n is running on localhost:5678
+
+### Testing Webhooks with Cloudflared
+
+```powershell
+# Test cloudflared tunnel
+Invoke-WebRequest -Uri "https://your-tunnel-url.trycloudflare.com"
+
+# Test actual webhook URLs
+Invoke-WebRequest -Uri "https://your-tunnel-url.trycloudflare.com/webhook-waiting/YOUR_ID?approved=true&signature=YOUR_SIG"
 ```
 
 ## 🔐 Google Cloud Platform (GCP) OAuth Setup

@@ -1,0 +1,31 @@
+# Cloudflared Configuration for local-n8n-with-docker-compose
+# ============================================================
+#
+# Quick tunnel (no login required):
+# Run: cloudflared tunnel --config cloudflared\config.yml url http://localhost:5678
+#
+# Named tunnel (requires login):
+# 1. Run: cloudflared tunnel login
+# 2. Run: cloudflared tunnel create n8n-local
+# 3. Update tunnel ID below
+# 4. Run: cloudflared tunnel --config cloudflared\config.yml run n8n-local
+
+# Quick tunnel configuration (recommended for free tier)
+tunnel: ""
+credentials-file: ""
+
+# For named tunnel, uncomment and update:
+# tunnel: "your-tunnel-id-here"
+# credentials-file: "C:\\Users\\YOUR_USERNAME\\.cloudflared\\your-tunnel-id.json"
+
+# Logging
+logDirectory: ./cloudflared/logs
+loglevel: info
+
+# Ingress rules - route traffic to local n8n
+ingress:
+  # Route all traffic to local n8n
+  - service: http://localhost:5678
+
+  # Fallback for unhandled requests
+  - service: http_status:404
