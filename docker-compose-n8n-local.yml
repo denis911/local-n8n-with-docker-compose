@@ -54,8 +54,8 @@ services:
       N8N_EDITOR_BASE_URL: ${N8N_EDITOR_BASE_URL:-}
 
       # Additional settings for better performance
-      N8N_DIAGNOSTICS_ENABLED: false
-      N8N_METRICS_ENABLED: false
+      N8N_DIAGNOSTICS_ENABLED: ${N8N_DIAGNOSTICS_ENABLED:-false}
+      N8N_METRICS_ENABLED: ${N8N_METRICS_ENABLED:-false}
     volumes:
       - ./data:/home/node/.n8n
       - ./local-files:/files
