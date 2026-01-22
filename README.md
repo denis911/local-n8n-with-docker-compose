@@ -111,6 +111,10 @@ local-n8n-with-docker-compose/
    # Edit your .env file and add:
    N8N_EDITOR_BASE_URL=https://your-ngrok-url.ngrok.io
    WEBHOOK_URL=https://your-ngrok-url.ngrok.io
+
+   # ...if any problems with ngrok or token is missing - go to
+   # https://dashboard.ngrok.com/get-started/your-authtoken
+   # and check / copy / paste token...
    ```
 
 8. **Restart n8n:**
