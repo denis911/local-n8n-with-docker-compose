@@ -367,6 +367,61 @@ Invoke-WebRequest -Uri "https://your-tunnel-url.trycloudflare.com/webhook-waitin
 - **Redirect URI mismatch**: Make sure the callback URL matches exactly: `http://localhost:5678/rest/oauth2-credential/callback`
 - **Scopes not granted**: Ensure Gmail API is enabled and user grants necessary permissions
 
+## 🔐 Google Cloud Platform (GCP) Service Account Setup (For Google Sheets)
+
+For backend processing where no user interaction is required (like reading/writing Google Sheets automatically), a **Service Account** is often easier and more stable than OAuth.
+
+### Step-by-Step Setup
+
+1.  **Create Project & Enable APIs**
+    - Go to [Google Cloud Console](https://console.cloud.google.com/).
+    - Create a new project or select an existing one.
+    - **Enable APIs**:
+        - Go to "APIs & Services" > "Library".
+        - Search for **"Google Sheets API"** -> Enable.
+        - Search for **"Google Drive API"** -> Enable.
+
+2.  **Create Service Account**
+    - Go to "APIs & Services" > "Credentials".
+    - Click "**Create Credentials**" > "**Service Account**".
+    - **Name**: e.g., "n8n-automation".
+    - **Description**: "Access for n8n local instance".
+    - Click "Create and Continue".
+    - **Grant this service account access to project**:
+        - For simple Sheet reading/writing where you share specific files, **no specific role is required** here. You can click "Continue" without selecting roles.
+        - *Optional*: If you want the account to manage all files in the project, you could add "Editor", but *Sharing* per file is safer and typically sufficient.
+    - Click "Done".
+
+3.  **Generate & Secure Key**
+    - In the Credentials list, click on the newly created Service Account (email looks like `n8n-automation@project-id.iam.gserviceaccount.com`).
+    - Go to the **"Keys"** tab.
+    - Click "Add Key" > "Create new key".
+    - Select **JSON** and click "Create".
+    - **⚠️ IMPORTANT**: The JSON file will download automatically.
+        - **Do NOT save this file inside this repository**.
+        - Save it in a secure location on your machine (e.g., a dedicated `secrets` folder outside your code, or a password manager).
+        - If you commit this file to GitHub, your Google Cloud resources could be compromised.
+
+4.  **Grant Permissions (Share the Sheet)**
+    - Service Accounts do not have access to your personal files by default.
+    - Open the Google Sheet you want n8n to access.
+    - Click the **"Share"** button (top right).
+    - In the "Add people" field, paste the **Service Account Email** (from the JSON file's `client_email` field, or GCP Console).
+    - Set permission to **Editor**.
+    - Uncheck "Notify people" (optional) and click "Send".
+
+5.  **Configure in n8n**
+    - In n8n, go to **Credentials** > **New**.
+    - Search for **"Google API"** (or "Google Sheets" depending on version).
+    - Credential Type: **Service Account**.
+    - **Service Account Email**: Copy `client_email` from your JSON file.
+    - **Private Key**: Copy `private_key` from your JSON file.
+        - It must include the header `-----BEGIN PRIVATE KEY...` and footer `...END PRIVATE KEY-----`.
+        - *Tip*: Open the JSON file with any text editor (Notepad, VS Code) to copy these values correctly.
+    - Save the credential.
+
+Now you can use the **Google Sheets** node with this "Google API" credential to read/write the shared sheet.
+
 ## ⚙️ Configuration
 
 ### Environment Variables (.env)
@@ -456,11 +511,13 @@ N8N_METRICS_ENABLED=false
 4. Create a new secret key
 5. **Important**: Add credits to your account (minimum $5) to use GPT-4
 
-##### 3. **Google Cloud Platform (GCP) OAuth**
+##### 3. **Google Cloud Platform (GCP)**
 **Cost**: Free tier available
-**Setup Time**: 15 minutes
+**Setup Time**: 10-15 minutes
 
-See the [🔐 GCP OAuth Setup](#-google-cloud-platform-gcp-oauth-setup) section above for detailed instructions.
+Required for Google Sheets/Drive/Gmail nodes. You can use either **OAuth** (user interaction) or **Service Account** (backend automation).
+- See [OAuth Setup](#-google-cloud-platform-gcp-oauth-setup) for Gmail/interactive use.
+- See [Service Account Setup](#-google-cloud-platform-gcp-service-account-setup-for-google-sheets) for automated Sheets/Drive access.
 
 ### Step-by-Step Setup
 
