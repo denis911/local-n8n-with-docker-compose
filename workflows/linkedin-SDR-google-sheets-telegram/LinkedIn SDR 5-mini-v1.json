@@ -1,0 +1,195 @@
+{
+  "name": "LinkedIn SDR 5-mini",
+  "nodes": [
+    {
+      "parameters": {
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "68f3d5c8-164a-4708-910f-0f767aabb1b2",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        64,
+        208
+      ],
+      "id": "a36d7cb4-3819-4802-9c4d-a2b2ca424668",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "K6NxfjmDExgeYkQF",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6a5a8222-5dbb-4f8d-9121-7751534db9de",
+      "name": "Enter ICP here",
+      "webhookId": "2576abbc-06ad-4641-83bf-60d1fcca45d7"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=You are a B2B lead research assistant.\n\nWhen the user describes their Ideal Customer Profile (ICP):\n\n{{ $json.chatInput }}\n\nSEARCH: Use tool: search_linkedin_apollo to find matching people\n\nExtract key parameters: title, location, industry, company size\nRun multiple searches if ICP has several dimensions\nQUALIFY: Review results against the ICP criteria\n\nSkip obvious mismatches (wrong seniority, unrelated industry)\nFor promising matches, use get_linkedin_profile for details\nSAVE: For qualified leads, use tool SHEET_CREATE_LEAD to save to CRM\n\nLead name: \"{First Name} {Last Name} - {Company}\"\nInclude LinkedIn URL in notes\nREPORT: Return a summary table with:\n\nName, Title, Company, LinkedIn URL\nWhy they match (1 sentence)\nScore (1-10)\nStart with 3 leads. Ask if user wants more."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        192,
+        0
+      ],
+      "id": "42c86787-a398-47e2-ba43-8a8bc35f5557",
+      "name": "LI lead gen agent"
+    },
+    {
+      "parameters": {
+        "actorSource": "store",
+        "actorId": {
+          "__rl": true,
+          "value": "M2FMdjRVeF1HPGFcc",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Profile Search Scraper No Cookies ✅ Find all people 📧 (harvestapi/linkedin-profile-search)",
+          "cachedResultUrl": "https://console.apify.com/actors/M2FMdjRVeF1HPGFcc/input"
+        },
+        "customBody": "{\n  \"searchUrl\": \"https://www.linkedin.com/search/results/people/?keywords=data%20engineer&geoUrn=%5B%22103644278%22%5D\",\n  \"maxResults\": 10\n}"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        544,
+        20.383561643835616
+      ],
+      "id": "138945ec-09d7-4bac-b39f-e3589364459c",
+      "name": "Run an Actor",
+      "credentials": {
+        "apifyApi": {
+          "id": "H8eMeXikawdyYoQK",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Run an Actor in Apify",
+        "actorId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "@apify/n8n-nodes-apify.apifyTool",
+      "typeVersion": 1,
+      "position": [
+        352,
+        208
+      ],
+      "id": "c410c4ec-e8d6-49f0-97bb-39faac0b9979",
+      "name": "Run an Actor in Apify",
+      "credentials": {
+        "apifyApi": {
+          "id": "H8eMeXikawdyYoQK",
+          "name": "Apify account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "LI lead gen agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LI lead gen agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enter ICP here": {
+      "main": [
+        [
+          {
+            "node": "LI lead gen agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LI lead gen agent": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run an Actor in Apify": {
+      "ai_tool": [
+        [
+          {
+            "node": "LI lead gen agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "e95ab1d2-7607-4faa-b3f1-a109ab11df2d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "863e280070624e47ca329f2d719a5c6c800b9e6e150caad375023972de464b35"
+  },
+  "id": "R2vhrmPQ8NMf0OUo3Pynt",
+  "tags": []
+}

@@ -1,0 +1,286 @@
+{
+  "name": "LinkedIn SDR 5-mini",
+  "nodes": [
+    {
+      "parameters": {
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        192
+      ],
+      "id": "68f3d5c8-164a-4708-910f-0f767aabb1b2",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        192
+      ],
+      "id": "a36d7cb4-3819-4802-9c4d-a2b2ca424668",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "K6NxfjmDExgeYkQF",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -176,
+        16
+      ],
+      "id": "6a5a8222-5dbb-4f8d-9121-7751534db9de",
+      "name": "Enter ICP here",
+      "webhookId": "2576abbc-06ad-4641-83bf-60d1fcca45d7"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=You are a B2B lead research assistant.\n\nWhen the user describes their Ideal Customer Profile (ICP):\n\n{{ $json.chatInput }}\n\n1. SEARCH: Use tool `Google_Search` or `Search_linkedin_apify` to find matching people.\n   - Extract key parameters: title, location, industry, company size.\n   - Run multiple searches if needed.\n\n2. QUALIFY: Review results against the ICP criteria.\n   - Skip obvious mismatches.\n\n3. CHECK DUPLICATES: Use tool `Check_duplicates_exist` to check if the profile is already in our records.\n   - If the profile exists, SKIP it.\n\n4. SAVE: If the profile is QUALIFIED and NOT a duplicate, use tool `Save_Lead` to save it to the CRM.\n   - Fields: Job_title, Name, Surname, Company_name, Linkedin_profile_url, full_profile_text.\n\n5. REPORT: Return a summary table to the user with:\n   - Name, Title, Company, LinkedIn URL\n   - Why they match (1 sentence)\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        160,
+        16
+      ],
+      "id": "42c86787-a398-47e2-ba43-8a8bc35f5557",
+      "name": "LI lead gen agent"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1IdMzLGaJ2e89P0nTo49ConVrvyu85FeveGoqnep8aoo/edit?usp=sharing",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IdMzLGaJ2e89P0nTo49ConVrvyu85FeveGoqnep8aoo/edit#gid=0"
+        },
+        "options": {
+          "description": "Checks if a lead already exists in the sheet. Returns the row if found."
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        192,
+        240
+      ],
+      "id": "36539022-256a-46fc-b8d3-43b7e14b0b47",
+      "name": "Check_duplicates_exist",
+      "credentials": {
+        "googleApi": {
+          "id": "YkedyImgAld7pufH",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Search for LinkedIn profiles using Apify",
+        "actorSource": "store",
+        "actorId": {
+          "__rl": true,
+          "value": "harvestapi/linkedin-profile-search",
+          "mode": "id"
+        },
+        "customBody": "={{ $fromAI('Input_JSON', ``, 'json') }}",
+        "waitForFinish": true
+      },
+      "type": "@apify/n8n-nodes-apify.apifyTool",
+      "typeVersion": 1,
+      "position": [
+        480,
+        240
+      ],
+      "id": "c410c4ec-e8d6-49f0-97bb-39faac0b9979",
+      "name": "Search_linkedin_apify",
+      "credentials": {
+        "apifyApi": {
+          "id": "H8eMeXikawdyYoQK",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        360,
+        380
+      ],
+      "id": "7b3a9c12-34d5-4e6f-9g7h-12i3j4k5l6m7",
+      "name": "Google_Search",
+      "credentials": {
+        "serpApi": {
+          "id": "YOUR_SERPAPI_CREDENTIAL_ID",
+          "name": "SerpApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1IdMzLGaJ2e89P0nTo49ConVrvyu85FeveGoqnep8aoo/edit?usp=sharing",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IdMzLGaJ2e89P0nTo49ConVrvyu85FeveGoqnep8aoo/edit#gid=0"
+        },
+        "options": {
+          "description": "Save a new qualified lead to the sheet. Requires columns: Job_title, Name, Surname, Company_name, Linkedin_profile_url, full_profile_text."
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        192,
+        400
+      ],
+      "id": "1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+      "name": "Save_Lead",
+      "credentials": {
+        "googleApi": {
+          "id": "YkedyImgAld7pufH",
+          "name": "Google Service Account account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "LI lead gen agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LI lead gen agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enter ICP here": {
+      "main": [
+        [
+          {
+            "node": "LI lead gen agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LI lead gen agent": {
+      "main": [
+        []
+      ]
+    },
+    "Check_duplicates_exist": {
+      "ai_tool": [
+        [
+          {
+            "node": "LI lead gen agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search_linkedin_apify": {
+      "ai_tool": [
+        [
+          {
+            "node": "LI lead gen agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google_Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "LI lead gen agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save_Lead": {
+      "ai_tool": [
+        [
+          {
+            "node": "LI lead gen agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "90157bab-a812-400a-9d16-241a9ae3adc1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "863e280070624e47ca329f2d719a5c6c800b9e6e150caad375023972de464b35"
+  },
+  "id": "R2vhrmPQ8NMf0OUo3Pynt",
+  "tags": []
+}
